@@ -1,0 +1,15 @@
+clear
+echo "Thank you for downloading osu-stuff."
+
+echo "| FILE      	| LANGUAGE 	| DESCRIPTION                                                                                         	| DEPENDENCIES 	|
+|-----------	|----------	|-----------------------------------------------------------------------------------------------------	|--------------	|
+| osu       	| shell    	| This script runs osu! using 'lutris' and kills 'lutris' after osu! is opened.                       	| lutris       	|
+| osu.png   	| png      	| osu! logo                                                                                           	| -            	|
+| osuauto   	| shell    	| This script will download beatmaps from given link.                                                 	| curl, xclip  	|
+| osumove   	| shell    	| This script moves all maps in ~/Downloads to osu! songs directory.                                  	| -            	|
+| osu-i     	| shell    	| This script will clone osu-stuff repo and export it to the path.                                    	| git          	|
+| osudir    	| shell    	| This file includes your osu! directory used by scripts.                                             	| -            	|
+| osunew    	| shell    	| This script will download about ~40 new ranked maps.                                                	| curl         	|
+| osusearch 	| shell    	| Gives a dmenu prompt to search osu.ppy.sh for downloading map. Without input, will open osu.ppy.sh. 	| dmenu, curl  	|"
+
+

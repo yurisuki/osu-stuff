@@ -1,0 +1,6 @@
+#!/bin/sh
+# This script runs osu! using 'lutris'
+# and kills 'lutris' after osu! is opened.
+
+pkill xcompmgr # Kill composite manager, because it fixes latency
+lutris lutris:rungameid/1 # Turn on lutris, which runs wine (osu!).

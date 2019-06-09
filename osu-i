@@ -1,0 +1,29 @@
+#!/bin/sh
+# This script will clone osu-stuff repo and export it to the path.
+# This depends on: git
+
+osus="$(echo ~/.osu-stuff)" # Make osu-stuff directory as $osus
+rm -rf $osus # Remove directory with osu-stuff (that's for updating)
+
+echo "Cloning osu-stuff"
+
+# Using 'if' to echo that it downloaded and continue or if it failed exit.
+if git clone https://github.com/yurisuki/osu-stuff.git $osus ; then # Clone the repository to the folder
+	clear && echo "Downloaded!"
+else
+	echo "Cloning failed! Check your internet connection!" && exit
+fi
+
+# Remove unnecessary files
+rm $osus/README.md
+rm $osus/osu-i
+rm $osus/scripts
+
+echo "export PATH=\$PATH:$osus" >> ~/.bashrc # Add osu-stuff directory as $PATH variable
+
+echo "osu-stuff was cloned in $osus"
+source ~/.bashrc # Source ~/.bashrc, so you can use these commands immediately
+
+echo "Please, wait 3 seconds."
+sleep 3 # This sleep timer is here, because while waiting you can read where osu-stuff was saved.
+curl https://raw.githubusercontent.com/yurisuki/osu-stuff/master/scripts | bash # This one will show what osu-stuff includes inside

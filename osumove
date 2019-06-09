@@ -1,0 +1,36 @@
+#!/bin/bash
+# This script moves all maps in ~/Downloads to osu! songs directory.
+# I use this with 'chromium', but you can use it just as a command.
+
+# How to set it up:
+# 1) You need perl-file-mimeinfo (should be in your distro's repo)
+# 2) Download any map (.osz) and leave it in ~/Downloads folder
+# 3) Do 'mimeopen -d ~/Downloads/*.osz'
+# 4) Select to open it with other
+# 5) Write in osumove and press ENTER
+# 6) Now download any map in your browser, and open it. It should execute the script and move all .osz files to your ~/osudir
+
+failed() {
+	notify-send -u critical -i ~/.osu-stuff/osu.png "$1"
+	exit
+}
+
+source ~/.osu-stuff/osudir # Short osu! directory as $osudir
+
+[ -n "$osudir" ] || failed "'\$osudir' doesn't exist. Set it in '~/osu-stuff/osudir'."
+
+ls -1 ~/Downloads/*.osz | wc -l > /tmp/mapcount # Get mapcount
+
+# Exit if no map was found in ~/Downloads
+if [ "$(cat /tmp/mapcount)" = 0 ];
+	then failed "No maps were found.";
+fi
+
+mv ~/Downloads/*.osz $osudir/Songs/ # Move everything
+
+# Send notification about how many maps were moved
+cat /tmp/mapcount | while read COUNT;
+	do notify-send -i ~/.osu-stuff/osu.png Moved\ "$COUNT"\ map\(s\)\ to\ Songs\ folder. ;
+done
+
+rm /tmp/mapcount # Remove mapcount

@@ -1,0 +1,83 @@
+#!/bin/bash
+# This script will download beatmaps from given link.
+
+# Check arguments.
+[ -z "$1" ] && echo "$0 is missing an URL." && exit
+
+# Check browser you use.
+[ -n "$BROWSER" ] || BROWSER="xdg-open"
+
+nonconverted=$1
+
+removeicon() {
+rm -f /tmp/osuicon
+pkill -RTMIN+12 i3blocks
+}
+
+convert() { # Convert any given osu! map link to downloadable mapid
+	echo " ⏬" >/tmp/osuicon
+	pkill -RTMIN+12 i3blocks
+osuid="$(curl -I -s $nonconverted | grep -oP 'https://osu.ppy.sh/beatmapsets/\s*\K\d+')" # If link includes https://...
+osuid1="$(curl -I -s $nonconverted | grep -oP 'http://osu.ppy.sh/beatmapsets/\s*\K\d+')" # If link includes http://...
+}
+
+echostuff() { # Echo outputs
+echo $nonconverted # Echo first command arrgument
+echo $osuid$osuid1 # Echo converted map ids
+}
+
+download() { # Downloading part starts.
+notify-send -i ~/.osu-stuff/osu.png -t 500 "Downloading map!" # Send notify about starting download
+
+mkdir -p ~/.osumaps/auto # Make a directory, where will be all maps dropped after they'll be downloaded.
+cd ~/.osumaps/auto # Go to directory, where will be all maps dropped after they'll be downloaded.
+
+# Download map with if (if curl fails for some reason, it will stop and tell you.)
+curl -q -O -J -L --cookie ~/.osu-stuff/cookies.txt "https://osu.ppy.sh/beatmapsets/$osuid$osuid1/download?noVideo=1" || failed "No beatmaps were downloaded."
+	notify-send -i ~/.osu-stuff/osu.png "Downloaded!"
+}
+
+failed() {
+	notify-send -u critical -i ~/.osu-stuff/osu.png "$1"
+	exit
+}
+
+check() {
+# Move maps in osu! songs directory (if mv fails, it will tell you.)
+if mv ~/.osumaps/auto/*.osz $osudir/Songs ; then
+	rm -rf ~/.osumaps/auto/* & exit
+else
+	notify-send -u critical -i ~/.osu-stuff/osu.png -t 3000 "No .osz file was downloaded!" "No maps were moved." && rm -rf ~/.osumaps/auto/*
+fi
+}
+
+firstcheck() { # Use 'if' for checking if cookies.txt exists. If it doesn't exist it will tell you how to export your cookies.txt and it will exit and if it exists it will continue.
+if [ -e ~/.osu-stuff/cookies.txt ]; then
+	echo ""
+else
+	echo -e "No cookies.txt file exists.\nExport your osu! cookie files by using cookies.txt extension for Chrome and Firefox and export it to ~/.osu-stuff." && exit
+fi
+
+# Source $osudir
+source ~/.osu-stuff/osudir
+[ -n "$osudir" ] || failed "'\$osudir' doesn't exist. Set it in '~/osu-stuff/osudir'."
+}
+
+order() { # Those are all commands in an order.
+	firstcheck
+	convert
+	echostuff
+	download
+	removeicon
+	check
+}
+
+# Copy URL to clipboard
+echo $nonconverted | xclip -sel clip
+
+case $1 in
+	https://osu.ppy.sh/b/* | http://osu.ppy.sh/b/* | https://osu.ppy.sh/s/* | http://osu.ppy.sh/s/* | http://bloodcat.com/osu/s/* | https://bloodcat.com/osu/s/*)
+	order ;;
+*)
+	$BROWSER $nonconverted ;;
+esac

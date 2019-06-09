@@ -1,0 +1,69 @@
+#!/bin/bash
+# Gives a dmenu prompt to search osu.ppy.sh for downloading map.
+# Without input, will open osu.ppy.sh.
+
+# Check for internet connection or exit
+ping -q -c 1 1.1.1.1 >/dev/null || exit 1
+
+failed() {
+	notify-send -u critical -i ~/.osu-stuff/osu.png "$1"
+	exit
+}
+
+# Make $osudir variable
+source ~/.osu-stuff/osudir
+
+[ -n "$osudir" ] || failed "'\$osudir' doesn't exist. Set it in '~/osu-stuff/osudir'."
+
+pgrep -x dmenu && exit
+
+# Open dmenu menu
+choice=$(echo "🔴" | dmenu -i -p "Search osu! maps:") || exit 1
+value=1
+
+removeicon() {
+rm -f /tmp/osuicon
+pkill -RTMIN+12 i3blocks
+}
+
+osudownload() { # Make a variable to not make it bloated
+	echo " ⏬" >/tmp/osuicon
+	pkill -RTMIN+12 i3blocks
+
+# Use 'if' for checking if cookies.txt exists. If it doesn't exist it will tell you how to export your cookies.txt and it will exit and if it exists it will continue.
+	if [ -e ~/.osu-stuff/cookies.txt ]; then
+		echo ""
+	else
+		echo "No cookies.txt file exists.
+Export your osu! cookie files by using cookies.txt extension for Chrome and Firefox and export it to ~/.osu-stuff." && removeicon && exit
+	fi
+
+	# Get the map ids and output it to file
+	curl --cookie ~/.osu-stuff/cookies.txt -s "https://old.ppy.sh/p/beatmaplist?q=$choice&page=$value" | grep /d/ | sed 's/[^0-9]//g' | awk '!a[$0]++' | tr '\n' ' ' > /tmp/osusearch
+	# Make dir where maps will be dropped
+	mkdir -p ~/.osumaps/search
+	cd ~/.osumaps/search
+	# Give notification that it starts downloading
+	notify-send -i ~/.osu-stuff/osu.png "Downloading $choice map(s)"
+	# Make a variable to make it downloadable
+	for searched in `cat /tmp/osusearch`; do curl -q -O -J -L --cookie ~/.osu-stuff/cookies.txt "https://osu.ppy.sh/beatmapsets/$searched/download?noVideo=1"; done
+	# Send notification when it is downloaded
+	notify-send -i ~/.osu-stuff/osu.png "Downloaded $(ls | wc -l) map(s)"
+	if [[ $(ls | wc -l) -ge 39 ]]; then
+		# Move it to osu! directory
+		mv *.osz $osudir/Songs
+		notify-send - ~/.osu-stuff/osu.png "Downloading #$value page."
+		value=$(expr $value + 1)
+		osudownload
+	else
+		mv *.osz $osudir/Songs
+		removeicon
+	fi
+}
+
+# 'if' statement. If no input was selected in dmenu it will open the osu! website. If input was given it will download map.
+if [ $choice == 🔴 ] ; then
+	$BROWSER https://osu.ppy.sh/home
+else
+	osudownload
+fi

@@ -1,0 +1,63 @@
+#!/bin/bash
+# This script will download about ~40 new ranked maps
+
+# Check for internet connection or exit
+ping -q -c 1 1.1.1.1 >/dev/null || exit 1
+
+# Source osu! directory
+source ~/.osu-stuff/osudir
+
+icon() {
+	echo " ⏬" >/tmp/osuicon
+	pkill -RTMIN+12 i3blocks
+}
+
+failed() {
+	notify-send -u critical -i ~/.osu-stuff/osu.png "$1"
+	removeicon
+	exit
+}
+
+removeicon() {
+rm -f /tmp/osuicon
+pkill -RTMIN+12 i3blocks
+}
+
+[ -n "$osudir" ] || failed "'\$osudir' doesn't exist. Set it in '~/osu-stuff/osudir'."
+
+checkcookies() { # This variable checks if you have cookies file.
+if [ -e ~/.osu-stuff/cookies.txt ]; then
+	echo ""
+else
+	echo "No cookies.txt file exists.
+Export your osu! cookie files by using cookies.txt extension for Chrome and Firefox and export it to ~/.osu-stuff." && removeicon && exit
+fi
+}
+
+getid() { # This variable will get all maps on osu! page and output it to the file
+	curl -s https://old.ppy.sh/p/beatmaplist?q=$choice | grep /d/ | sed 's/[^0-9]//g' | awk '!a[$0]++' | tr '\n' ' ' > /tmp/osunew
+}
+
+prepare() { # Prepare folders, etc.
+	mkdir -p ~/.osumaps/search
+	cd ~/.osumaps/search
+}
+
+download() { # This variable will download the maps and send notifications
+	notify-send -i ~/.osu-stuff/osu.png "Downloading newest maps"
+	for new in `cat /tmp/osunew`; do curl -q -O -J -L --cookie ~/.osu-stuff/cookies.txt https://osu.ppy.sh/beatmapsets/$new/download?noVideo=1; done
+	notify-send -i ~/.osu-stuff/osu.png "Downloaded!"
+}
+
+after() { # This variable will move the maps and clean mess
+mv *.osz $osudir/Songs
+rm -f *
+}
+
+icon
+checkcookies
+getid
+prepare
+download
+after
+removeicon

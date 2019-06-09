@@ -1,0 +1,5 @@
+#!/bin/bash
+# This file includes your osu! directory used by scripts.
+
+# Replace this with your directory.
+#osudir=~/osudir # Remove the hashtag and put in your directory. (osudir is defaulty set to be directory installed by osu-install)
