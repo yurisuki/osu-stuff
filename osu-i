@@ -3,13 +3,33 @@
 # This depends on: git, curl
 
 osus="$HOME/.osu-stuff" # Make osu-stuff directory as $osus
+
+cat << \EOF
+		                           _          __  __
+		  ___  ___ _   _       ___| |_ _   _ / _|/ _|
+		 / _ \/ __| | | |_____/ __| __| | | | |_| |_
+		| (_) \__ \ |_| |_____\__ \ |_| |_| |  _|  _|
+		 \___/|___/\__,_|     |___/\__|\__,_|_| |_|
+
+			Welcome to osu-stuff installation!
+EOF
+cat << EOF
+		All the scripts will be dropped in $osus.
+EOF
+
+# Check if `git` is installed.
+printf "Checking few things before start....\\n"
+! git --help >/dev/null 2>&1 && printf "\033[31mYou are missing \`git\`, install it from your package manager and run the installer again.\033[0m\\n" && exit
+
+printf "Cleaning mess....\\n"
 rm -rf $osus >/dev/null 2>&1 # Remove directory with osu-stuff (that's for updating)
 
-echo "Cloning osu-stuff"
-
 # Clone `osustuff` and drop it in `$osus`
-! git clone https://github.com/yurisuki/osu-stuff.git $osus && echo "Cloning failed! Check your internet connection!" && exit
-clear && echo "Downloaded!"
+printf "Cloning osu-stuff from GitHub....\\n"
+! git clone https://github.com/yurisuki/osu-stuff.git $osus && printf "\033[31mCloning failed! Check your internet connection!\033[0m\\n" && exit
+clear && printf "Downloaded!\\n"
+
+printf "Doing some things before finishing....\\n"
 
 # Remove unnecessary files
 cd $osus
@@ -20,6 +40,30 @@ echo "export PATH=\$PATH:$osus" >> ~/.bashrc # Add osu-stuff directory as $PATH 
 echo "osu-stuff was cloned in $osus"
 source ~/.bashrc # Source ~/.bashrc, so you can use these commands immediately
 
-echo "Please, wait 3 seconds."
-sleep 3 # This sleep timer is here, because while waiting you can read where osu-stuff was saved.
-curl https://raw.githubusercontent.com/yurisuki/osu-stuff/master/scripts | bash # This one will show what osu-stuff includes inside
+cat << \EOF
+		                           _          __  __
+		  ___  ___ _   _       ___| |_ _   _ / _|/ _|
+		 / _ \/ __| | | |_____/ __| __| | | | |_| |_
+		| (_) \__ \ |_| |_____\__ \ |_| |_| |  _|  _|
+		 \___/|___/\__,_|     |___/\__|\__,_|_| |_|
+
+				Downloaded!
+		Here's a list with all files inside osu-stuff repository.
+
+| FILE      	| LANGUAGE 	| DESCRIPTION                                                                                         	| DEPENDENCIES 	|
+|-----------	|----------	|-----------------------------------------------------------------------------------------------------	|--------------	|
+| osu       	| shell    	| This script runs osu! installed by 'lutris'.                        					| -       	|
+| osu.png   	| png      	| osu! logo                                                                                           	| -            	|
+| osuauto   	| shell    	| This script will download beatmaps from given link.                                                 	| curl, xclip  	|
+| osumove   	| shell    	| This script moves all maps in ~/Downloads to osu! songs directory.                                  	| -            	|
+| osu-i     	| shell    	| This script will clone osu-stuff repo and export it to the path.                                    	| git          	|
+| osudir    	| shell    	| This file includes your osu! directory used by scripts.                                             	| -            	|
+| osunew    	| shell    	| This script will download about ~40 new ranked maps.                                                	| curl         	|
+| osusearch 	| shell    	| Gives a dmenu prompt to search osu.ppy.sh for downloading map. Without input, will open osu.ppy.sh. 	| dmenu, curl  	|
+EOF
+
+cat << EOF
+
+osu-i has put $osus (scripts directory) to your \$PATH, which means that you can just write (e.g. osusearch) and it will be executed.
+To make this work, you need to reload \`bash\`.
+EOF
