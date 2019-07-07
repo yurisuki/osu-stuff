@@ -1,6 +1,10 @@
 #!/bin/sh
-# This script runs osu! using 'lutris'
-# and kills 'lutris' after osu! is opened.
+# This script runs osu! using `wine`.
+# You need to setup wineprefix using `lutris`.
 
-pkill xcompmgr # Kill composite manager, because it fixes latency
-lutris lutris:rungameid/1 # Turn on lutris, which runs wine (osu!).
+killall xcompmgr >/dev/null 2>&1
+export PATH=/opt/wine-osu/bin:$PATH
+export WINEPREFIX=~/Games/osu/
+cd ~/Games/osu/drive_c/osu
+
+wine osu\!.exe
