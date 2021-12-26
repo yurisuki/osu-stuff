@@ -6,7 +6,7 @@
 
   ▓▓▓▓▓▓▓▓▓▓
  ░▓ about  ▓ script I made for osu!
- ░▓ author ▓ yurisuki <yurisuki@waifu.club>
+ ░▓ author ▓ yurisuki <adam@adamnvrtil.fun>
  ░▓▓▓▓▓▓▓▓▓▓
  ░░░░░░░░░░
 ```
